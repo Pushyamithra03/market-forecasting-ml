@@ -36,16 +36,33 @@ def engineer_features(input_file, output_file):
     # Daily Returns
     df["Daily_Return"] = df["Close"].pct_change()
 
+    # Rolling Statistics
+    df["Rolling_Mean_5"] = df["Close"].rolling(window=5).mean()
+    df["Rolling_Mean_10"] = df["Close"].rolling(window=10).mean()
+
+    df["Rolling_STD_5"] = df["Close"].rolling(window=5).std()
+    df["Rolling_STD_10"] = df["Close"].rolling(window=10).std()
+
     # Volatility
-    df["Volatility"] = df["Daily_Return"].rolling(20).std()
+    df["Volatility"] = df["Daily_Return"].rolling(window=20).std()
+
+    # Momentum Features
+    df["Return_5"] = df["Close"].pct_change(5)
+    df["Return_10"] = df["Close"].pct_change(10)
+    df["Return_20"] = df["Close"].pct_change(20)
 
     # Lag Features
     df["Lag_1"] = df["Close"].shift(1)
     df["Lag_2"] = df["Close"].shift(2)
     df["Lag_3"] = df["Close"].shift(3)
+    df["Lag_5"] = df["Close"].shift(5)
+    df["Lag_10"] = df["Close"].shift(10)
+    df["Lag_20"] = df["Close"].shift(20)
 
-    # Target (next day's close)
-    df["Target"] = df["Close"].shift(-1)
+    # Classification Target
+    # 1 = Tomorrow's return is positive
+    # 0 = Tomorrow's return is zero or negative
+    df["Target"] = (df["Daily_Return"].shift(-1) > 0).astype(int)
 
     df.dropna(inplace=True)
 
